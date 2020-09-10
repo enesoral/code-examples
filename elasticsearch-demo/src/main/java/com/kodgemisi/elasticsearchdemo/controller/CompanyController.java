@@ -40,8 +40,7 @@ class CompanyController {
 
 	@GetMapping
 	List<Company> getCompaniesByEmployeesName(@RequestParam("name") String name) {
-		final Page<Company> employeesPage =
-				companyRepository.findByEmployeesName(name, PageRequest.of(0, 20));
+		final Page<Company> employeesPage = companyRepository.findByEmployeesName(name, PageRequest.of(0, 20));
 		return employeesPage.getContent();
 	}
 
@@ -52,50 +51,39 @@ class CompanyController {
 
 	@GetMapping("/search")
 	List<SearchHit<Company>> getCompaniesByDescription(@RequestParam("search") String searchTerm) {
-		final NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
-				.withQuery(matchQuery("description", searchTerm))
-				.build();
-		return elasticsearchOperations.search(searchQuery, Company.class,
-											  IndexCoordinates.of(INDEX_NAME)).getSearchHits();
+		final NativeSearchQuery searchQuery = new NativeSearchQueryBuilder().withQuery(matchQuery("description", searchTerm)).build();
+		return elasticsearchOperations.search(searchQuery, Company.class, IndexCoordinates.of(INDEX_NAME)).getSearchHits();
 	}
 
 	@GetMapping("/score-search")
 	List<SearchHit<Company>> getCompaniesByScoreDescription(@RequestParam("search") String searchTerm) {
-		final NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
-				.withQuery(matchQuery("description", searchTerm)
-				.minimumShouldMatch("100%"))
-				.build();
-		return elasticsearchOperations.search(searchQuery, Company.class,
-											  IndexCoordinates.of(INDEX_NAME)).getSearchHits();
+		final NativeSearchQuery searchQuery = new NativeSearchQueryBuilder().withQuery(
+				matchQuery("description", searchTerm).minimumShouldMatch("100%")).build();
+		return elasticsearchOperations.search(searchQuery, Company.class, IndexCoordinates.of(INDEX_NAME)).getSearchHits();
 	}
 
 	@GetMapping("/full-search")
 	List<SearchHit<Company>> getCompaniesByFullDescription(@RequestParam("search") String searchTerm) {
-		final NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
-				.withQuery(matchQuery("description", searchTerm).operator(Operator.AND))
-				.build();
-		return elasticsearchOperations.search(searchQuery, Company.class,
-											  IndexCoordinates.of(INDEX_NAME)).getSearchHits();
+		final NativeSearchQuery searchQuery = new NativeSearchQueryBuilder().withQuery(
+				matchQuery("description", searchTerm).operator(Operator.AND)).build();
+		return elasticsearchOperations.search(searchQuery, Company.class, IndexCoordinates.of(INDEX_NAME)).getSearchHits();
 	}
 
 	@GetMapping("/fuzzy-search")
 	List<SearchHit<Company>> getCompaniesByFuzzyDescription(@RequestParam("search") String searchTerm) {
-		final NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
-				.withQuery(matchQuery("description", searchTerm)
-				.operator(Operator.AND)
-				.fuzziness(Fuzziness.ONE)
-				.prefixLength(2))
-				.build();
-		return elasticsearchOperations.search(searchQuery, Company.class,
-											  IndexCoordinates.of(INDEX_NAME)).getSearchHits();
+		final NativeSearchQuery searchQuery = new NativeSearchQueryBuilder().withQuery(
+				matchQuery("description", searchTerm).operator(Operator.AND).fuzziness(Fuzziness.ONE).prefixLength(2)).build();
+		return elasticsearchOperations.search(searchQuery, Company.class, IndexCoordinates.of(INDEX_NAME)).getSearchHits();
 	}
 
 	@GetMapping("/phrase-search")
 	List<SearchHit<Company>> getCompaniesByPhraseDescription(@RequestParam("search") String searchTerm) {
-		final NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
-				.withQuery(matchPhraseQuery("description", searchTerm).slop(1))
-				.build();
-		return elasticsearchOperations.search(searchQuery, Company.class,
-											  IndexCoordinates.of(INDEX_NAME)).getSearchHits();
+		final NativeSearchQuery searchQuery = new NativeSearchQueryBuilder().withQuery(matchPhraseQuery("description", searchTerm).slop(1)).build();
+		return elasticsearchOperations.search(searchQuery, Company.class, IndexCoordinates.of(INDEX_NAME)).getSearchHits();
+	}
+
+	@GetMapping("/repo-search")
+	List<SearchHit<Company>> getCompaniesByRepoDescription(@RequestParam("search") String searchTerm) {
+		return companyRepository.searchByDescription(searchTerm).getSearchHits();
 	}
 }
